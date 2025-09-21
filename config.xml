@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" 
+        xmlns:tizen="http://tizen.org/ns/widgets" 
+        id="http://yourdomain.com/SamsungTVJukeboxKaraoke" 
+        version="1.0.0" 
+        viewmodes="maximized">
+    
+    <tizen:application id="SamsungTVJukeboxKaraoke.main" package="SamsungTVJukeboxKaraoke" required_version="6.0"/>
+    
+    <content src="index.html"/>
+    
+    <name>Samsung TV Jukebox Karaoke</name>
+    <description>Samsung Smart TV Karaoke Application with MiTV Integration</description>
+    
+    <author href="http://yourdomain.com" email="developer@yourdomain.com">Your Company Name</author>
+    
+    <icon src="icon.png"/>
+    
+    <!-- TV-specific features -->
+    <tizen:feature name="http://tizen.org/feature/screen.size.all"/>
+    <tizen:feature name="http://tizen.org/feature/web.service"/>
+    
+    <!-- Network permissions for API calls -->
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/network.get"/>
+    
+    <!-- Media permissions for video/audio -->
+    <tizen:privilege name="http://tizen.org/privilege/mediacapture"/>
+    <tizen:privilege name="http://tizen.org/privilege/mediacontroller.client"/>
+    
+    <!-- Storage permissions for caching -->
+    <tizen:privilege name="http://tizen.org/privilege/filesystem.read"/>
+    <tizen:privilege name="http://tizen.org/privilege/filesystem.write"/>
+    
+    <!-- TV remote control -->
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+    
+    <!-- App preferences -->
+    <preference name="ContextMenu" value="disable"/>
+    <preference name="Orientation" value="landscape"/>
+    <preference name="DisallowOverscroll" value="true"/>
+    
+    <!-- TV-specific settings -->
+    <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto"/>
+    
+    <!-- Content Security Policy for TV apps -->
+    <tizen:content-security-policy>default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;</tizen:content-security-policy>
+    
+    <!-- TV app metadata -->
+    <tizen:metadata key="http://samsung.com/tv/metadata/use.preview" value="endpoint_URL"/>
+    <tizen:metadata key="http://samsung.com/tv/metadata/prelaunch.support" value="true"/>
+    
+</widget>

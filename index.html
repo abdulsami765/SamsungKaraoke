@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samsung TV Jukebox Karaoke</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
+        }
+        .loading-container {
+            text-align: center;
+            padding: 2rem;
+        }
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="logo">🎤 Jukebox Karaoke</div>
+        <div class="spinner"></div>
+        <div class="message">Loading Samsung TV Karaoke App...</div>
+    </div>
+
+    <script>
+        // Tizen TV app initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Samsung TV Jukebox Karaoke - Tizen App Starting...');
+            
+            // Check if running on Tizen TV
+            if (typeof tizen !== 'undefined') {
+                console.log('Running on Tizen TV platform');
+                
+                // Register TV key events
+                try {
+                    tizen.tvinputdevice.registerKey('MediaPlayPause');
+                    tizen.tvinputdevice.registerKey('MediaStop');
+                    tizen.tvinputdevice.registerKey('MediaFastForward');
+                    tizen.tvinputdevice.registerKey('MediaRewind');
+                    tizen.tvinputdevice.registerKey('VolumeUp');
+                    tizen.tvinputdevice.registerKey('VolumeDown');
+                    tizen.tvinputdevice.registerKey('VolumeMute');
+                    console.log('TV remote keys registered successfully');
+                } catch (error) {
+                    console.error('Failed to register TV keys:', error);
+                }
+            }
+            
+            // Redirect to Next.js app (assuming it's built and served)
+            setTimeout(function() {
+                // In production, this would redirect to the built Next.js app
+                // For development, you might serve the Next.js app on a specific port
+                window.location.href = './out/index.html'; // Next.js static export
+            }, 2000);
+        });
+
+        // Handle TV remote key events
+        document.addEventListener('keydown', function(event) {
+            console.log('Key pressed:', event.key, event.keyCode);
+            
+            switch(event.keyCode) {
+                case 10009: // Return key
+                    event.preventDefault();
+                    console.log('TV Return key pressed');
+                    break;
+                case 10182: // Exit key  
+                    event.preventDefault();
+                    console.log('TV Exit key pressed');
+                    if (typeof tizen !== 'undefined') {
+                        try {
+                            tizen.application.getCurrentApplication().exit();
+                        } catch (error) {
+                            console.error('Failed to exit app:', error);
+                        }
+                    }
+                    break;
+                case 37: // Left arrow
+                case 38: // Up arrow
+                case 39: // Right arrow
+                case 40: // Down arrow
+                case 13: // Enter
+                    event.preventDefault();
+                    console.log('Navigation key pressed:', event.keyCode);
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

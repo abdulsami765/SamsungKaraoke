@@ -1,0 +1,32 @@
+{
+  "name": "Samsung TV Jukebox Karaoke",
+  "version": "1.0.0",
+  "description": "Build configuration for Samsung Smart TV Tizen app",
+  "tizen": {
+    "profile": "tv-samsung",
+    "apiVersion": "6.0",
+    "buildTool": "cli",
+    "certificate": {
+      "author": "author.p12",
+      "distributor": "tizen-distributor-signer.p12"
+    }
+  },
+  "build": {
+    "outputDir": "tizen-build",
+    "staticExport": true,
+    "nextConfig": {
+      "output": "export",
+      "trailingSlash": true,
+      "images": {
+        "unoptimized": true
+      }
+    }
+  },
+  "scripts": {
+    "build-tizen": "npm run build && npm run export && npm run package-tizen",
+    "export": "next export",
+    "package-tizen": "tizen package -t wgt -s author -- tizen-build",
+    "install-tizen": "tizen install -n SamsungTVJukeboxKaraoke.wgt -t TV_DEVICE_ID",
+    "debug-tizen": "tizen run -p SamsungTVJukeboxKaraoke.main -t TV_DEVICE_ID"
+  }
+}

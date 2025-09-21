@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="6.0" package="SamsungTVJukeboxKaraoke" version="1.0.0">
+    <profile name="tv-samsung"/>
+    <ui-application appid="SamsungTVJukeboxKaraoke.main" exec="SamsungTVJukeboxKaraoke" multiple="false" nodisplay="false" taskmanage="true" type="webapp">
+        <label>Samsung TV Jukebox Karaoke</label>
+        <icon>icon.png</icon>
+        <category name="http://tizen.org/category/tv"/>
+        <metadata key="http://samsung.com/tv/metadata/use.preview" value="endpoint_URL"/>
+        <metadata key="http://samsung.com/tv/metadata/prelaunch.support" value="true"/>
+        <splash-screens>
+            <splash-screen src="splash.png" orientation="landscape" dpi="xhigh"/>
+        </splash-screens>
+    </ui-application>
+    
+    <privileges>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+        <privilege>http://tizen.org/privilege/network.get</privilege>
+        <privilege>http://tizen.org/privilege/mediacapture</privilege>
+        <privilege>http://tizen.org/privilege/mediacontroller.client</privilege>
+        <privilege>http://tizen.org/privilege/filesystem.read</privilege>
+        <privilege>http://tizen.org/privilege/filesystem.write</privilege>
+        <privilege>http://tizen.org/privilege/tv.inputdevice</privilege>
+    </privileges>
+    
+    <feature name="http://tizen.org/feature/screen.size.all">true</feature>
+    <feature name="http://tizen.org/feature/web.service">true</feature>
+</manifest>
