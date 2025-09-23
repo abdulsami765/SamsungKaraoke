@@ -1,34 +1,30 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { SessionManager } from "@/lib/session-manager"
-import type { ApiResponse } from "@/types"
+import { NextResponse } from 'next/server';
+import { allSessions, saveSessions } from '@/lib/store';
+import type { ApiEnvelope } from '@/types';
 
-export async function POST(request: NextRequest) {
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+export async function POST(req: Request) {
   try {
-    const sessionId = request.headers.get("x-session-id")
-
+    const body = await req.json().catch(() => ({}));
+    const sessionId: string = (body.sessionId || '').toString();
     if (!sessionId) {
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Session ID required",
-        },
-        { status: 401 },
-      )
+      return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'SESSION_ID_REQUIRED' }, { status: 400 });
     }
 
-    const success = SessionManager.endSession(sessionId)
+    const sessions = await allSessions();
+    const idx = sessions.findIndex(s => s.sessionId === sessionId);
+    if (idx === -1) {
+      return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'SESSION_NOT_FOUND' }, { status: 404 });
+    }
 
-    return NextResponse.json<ApiResponse>({
-      success: true,
-      data: { message: success ? "Logged out successfully" : "Session already ended" },
-    })
-  } catch (error) {
-    return NextResponse.json<ApiResponse>(
-      {
-        success: false,
-        error: "Internal server error",
-      },
-      { status: 500 },
-    )
+    // remove the session (or mark inactive if preferred)
+    sessions.splice(idx, 1);
+    await saveSessions(sessions);
+
+    return NextResponse.json<ApiEnvelope<{ message: string }>>({ ok: true, data: { message: 'Logged out' } });
+  } catch (e: any) {
+    return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: e?.message || 'UNKNOWN' }, { status: 500 });
   }
 }

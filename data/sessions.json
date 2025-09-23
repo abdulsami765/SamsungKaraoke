@@ -1,74 +1,24 @@
-{
-  "session-1758362917485-y9jeqqze7": {
-    "id": "session-1758362917485-y9jeqqze7",
-    "businessId": "business-6",
+[
+  {
+    "sessionId": "0c3d65fd-3493-4781-87b6-10b3cecee8ef",
+    "hostcode": "919190",
+    "business": {
+      "businessName": "Scret Lounge",
+      "slogan": "Let’s Have Some Fun",
+      "flyerUrl": "/flyers/default.jpg"
+    },
     "devices": [
       {
-        "id": "device-1758362920339-ttrb8l0m6",
-        "name": "Web Client 1758362917501",
-        "registeredAt": "2025-09-20T10:08:40.339Z",
-        "lastActive": "2025-09-20T10:08:40.339Z"
+        "id": "7921bac6-fd58-46a4-8c38-11ce665708cd",
+        "name": "Sami TV",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0",
+        "createdAt": 1758644495882,
+        "lastActive": 1758644495882
       }
     ],
-    "isActive": true,
-    "createdAt": "2025-09-20T10:08:37.486Z",
-    "queue": [
-      {
-        "id": "user-1",
-        "title": "My Way - Frank Sinatra",
-        "url": "/singing-performance.jpg",
-        "thumbnail": "/singing-performance.jpg",
-        "duration": 270,
-        "username": "SingingMike",
-        "userPhoto": "/user-avatar-mike.jpg",
-        "message": "Dedicated to my beautiful wife Sarah! 💕",
-        "submittedAt": "2025-09-20T10:08:37.448Z"
-      },
-      {
-        "id": "ad-1",
-        "title": "Happy Hour Special",
-        "url": "/karaoke-night.png",
-        "thumbnail": "/karaoke-night.png",
-        "duration": 5,
-        "isAd": true
-      },
-      {
-        "id": "user-2",
-        "title": "Bohemian Rhapsody - Queen",
-        "url": "/karaoke-performance.jpg",
-        "thumbnail": "/karaoke-performance.jpg",
-        "duration": 355,
-        "username": "RockQueen87",
-        "message": "This one goes out to all the Queen fans in the house!",
-        "submittedAt": "2025-09-20T10:08:37.448Z"
-      },
-      {
-        "id": "ad-2",
-        "title": "Weekend Party Night",
-        "url": "/vibrant-party-scene.png",
-        "thumbnail": "/vibrant-party-scene.png",
-        "duration": 5,
-        "isAd": true
-      },
-      {
-        "id": "user-3",
-        "title": "Dancing Queen - ABBA",
-        "url": "/vibrant-dance-party.png",
-        "thumbnail": "/vibrant-dance-party.png",
-        "duration": 230,
-        "username": "DancingDiva",
-        "userPhoto": "/user-avatar-dancing.jpg",
-        "message": "Let's get this party started! 🕺💃",
-        "submittedAt": "2025-09-20T10:08:37.448Z"
-      },
-      {
-        "id": "ad-1",
-        "title": "Happy Hour Special",
-        "url": "/karaoke-night.png",
-        "thumbnail": "/karaoke-night.png",
-        "duration": 5,
-        "isAd": true
-      }
-    ]
+    "queue": [],
+    "lastPlayed": null,
+    "createdAt": 1758639599126,
+    "updatedAt": 1758644507261
   }
-}
+]

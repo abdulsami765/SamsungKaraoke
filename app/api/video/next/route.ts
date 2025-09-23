@@ -1,62 +1,33 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { SessionManager } from "@/lib/session-manager"
-import type { ApiResponse } from "@/types"
+import { NextResponse } from 'next/server';
+import { allSessions, getRandomIds, saveSessions } from '@/lib/store';
+import type { ApiEnvelope, VideoItem } from '@/types';
 
-export async function POST(request: NextRequest) {
-  try {
-    const sessionId = request.headers.get("x-session-id")
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
-    if (!sessionId || sessionId.trim() === "") {
-      console.error("Invalid session ID provided:", sessionId)
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Session ID required",
-        },
-        { status: 401 },
-      )
-    }
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const { sessionId } = body as { sessionId: string };
+  const sessions = await allSessions();
+  const s = sessions.find(x => x.sessionId === (sessionId || ''));
+  if (!s) return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'SESSION_NOT_FOUND' }, { status: 404 });
 
-    const session = SessionManager.getSession(sessionId)
-    if (!session) {
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Invalid session",
-        },
-        { status: 401 },
-      )
-    }
-
-    const nextVideo = SessionManager.advanceQueue(sessionId)
-    if (!nextVideo) {
-      console.error(`Failed to advance queue for sessionId: ${sessionId}`)
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Failed to advance queue or queue empty",
-        },
-        { status: 400 },
-      )
-    }
-
-    console.log("Request Headers:", request.headers)
-    console.log("Session ID:", sessionId)
-    console.log("Session:", session)
-    console.log("Next Video:", nextVideo)
-    console.log("Session Queues:", SessionManager.getQueue(sessionId))
-
-    return NextResponse.json<ApiResponse>({
-      success: true,
-      data: { nextVideo },
-    })
-  } catch (error) {
-    return NextResponse.json<ApiResponse>(
-      {
-        success: false,
-        error: "Internal server error",
-      },
-      { status: 500 },
-    )
+  let next: VideoItem | null = null;
+  if (s.queue.length) {
+    next = s.queue.shift()!;
   }
+  s.updatedAt = Date.now();
+  await saveSessions(sessions);
+
+  if (next) {
+    return NextResponse.json<ApiEnvelope<{ source: 'queue'; item: VideoItem }>>({
+      ok: true, data: { source: 'queue', item: next }
+    });
+  }
+
+  const pool = await getRandomIds();
+  const id = pool[Math.floor(Math.random() * pool.length)];
+  return NextResponse.json<ApiEnvelope<{ source: 'random'; id: string }>>({
+    ok: true, data: { source: 'random', id }
+  });
 }

@@ -122,6 +122,15 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Ensure all buttons show a pointer cursor on hover */
+  button:not(:disabled):hover,
+  [role="button"]:not([aria-disabled="true"]):hover,
+  input[type="button"]:not(:disabled):hover,
+  input[type="submit"]:not(:disabled):hover,
+  input[type="reset"]:not(:disabled):hover,
+  [data-slot="button"]:hover {
+    @apply cursor-pointer;
+  }
 }
 
 /* Added marquee animation for scrolling messages */

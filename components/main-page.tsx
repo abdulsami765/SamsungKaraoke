@@ -2,7 +2,7 @@
 
 import React, { memo, useCallback, useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
-import { VideoPlayer } from "@/components/video-player"
+import VideoPlayer from "@/components/video-player"
 import { DeviceManager } from "@/components/device-manager";
 import { TVControls } from "@/components/tv-controls"
 import type { Video, UserVideo } from "@/types"

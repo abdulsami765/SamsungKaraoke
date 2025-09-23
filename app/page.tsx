@@ -1,55 +1,37 @@
-"use client";
+import Link from 'next/link';
+import Rotator from './rotator';
+import ConnectCard from './connect-card';
 
-import { useState, useEffect } from "react";
-import MainPage from "@/components/main-page";
-import { LandingPage } from "@/components/landing-page";
-import { TVRemoteProvider } from "@/components/tv-remote-provider";
+export const dynamic = 'force-dynamic';
 
-export default function Home() {
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [businessInfo, setBusinessInfo] = useState<any>(null);
+async function getRandomIds() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/api/videos/random`, { cache: 'no-store' });
+  const json = await res.json();
+  return (json?.data ?? []) as string[];
+}
 
-  useEffect(() => {
-    const savedSession = localStorage.getItem("tv-karaoke-session");
-    const savedBusiness = localStorage.getItem("tv-karaoke-business");
-
-    if (savedSession && savedBusiness) {
-      setSessionId(savedSession);
-      setBusinessInfo(JSON.parse(savedBusiness));
-    }
-  }, []);
-
-  const handleConnect = (session: string, business: any) => {
-    setSessionId(session);
-    setBusinessInfo(business);
-    localStorage.setItem("tv-karaoke-session", session);
-    localStorage.setItem("tv-karaoke-business", JSON.stringify(business));
-  };
-
-  const handleLogout = () => {
-    setSessionId(null);
-    setBusinessInfo(null);
-    localStorage.removeItem("tv-karaoke-session");
-    localStorage.removeItem("tv-karaoke-business");
-  };
-
-  const handleGlobalExit = () => {
-    if (confirm("Exit Samsung TV Jukebox Karaoke?")) {
-      window.close();
-    }
-  };
-
-  if (sessionId && businessInfo) {
-    return (
-      <TVRemoteProvider onGlobalExit={handleGlobalExit} onGlobalHome={handleLogout}>
-        <MainPage sessionId={sessionId} businessInfo={businessInfo} onLogout={handleLogout} />
-      </TVRemoteProvider>
-    );
-  }
+export default async function LandingPage() {
+  const ids = await getRandomIds();
 
   return (
-    <TVRemoteProvider onGlobalExit={handleGlobalExit}>
-      <LandingPage onConnect={handleConnect} />
-    </TVRemoteProvider>
+    <main className="min-h-screen bg-black text-white grid grid-cols-12">
+      {/* Left: rotating preview */}
+      <section className="col-span-8 p-4">
+        <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+          <Rotator ids={ids} seconds={15} />
+        </div>
+        <p className="mt-2 text-sm opacity-70">Rotating random videos every 15s (autoplay).</p>
+      </section>
+
+      {/* Right: hostcode connect */}
+      <section className="col-span-4 p-6 bg-zinc-900">
+        <ConnectCard />
+        <div className="mt-6">
+          <Link className="underline opacity-80" href="https://www.jukeboxkaraoke.net/" target="_blank">
+            What is MiTV?
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }

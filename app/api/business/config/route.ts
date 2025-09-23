@@ -1,16 +1,18 @@
 import { NextResponse } from 'next/server';
 import { allSessions } from '@/lib/store';
-import type { ApiEnvelope, DeviceInfo } from '@/types';
+import type { ApiEnvelope } from '@/types';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  let sid = url.searchParams.get('sessionId') || '';
-  if (!sid) sid = (req.headers.get('x-session-id') || '').toString();
+  const sid = url.searchParams.get('sessionId') || '';
   const sessions = await allSessions();
   const s = sessions.find(x => x.sessionId === sid);
   if (!s) return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'SESSION_NOT_FOUND' }, { status: 404 });
-  return NextResponse.json<ApiEnvelope<DeviceInfo[]>>({ ok: true, data: s.devices });
+  return NextResponse.json<ApiEnvelope<{ businessName: string; slogan?: string; flyerUrl?: string }>>({
+    ok: true,
+    data: s.business
+  });
 }

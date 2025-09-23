@@ -1,59 +1,52 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { SessionManager } from "@/lib/session-manager"
-import type { ApiResponse } from "@/types"
+import { NextResponse } from 'next/server';
+import { allSessions, getHostcodes, saveSessions, uuid } from '@/lib/store';
+import type { ApiEnvelope, Session } from '@/types';
 
-export async function POST(request: NextRequest) {
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+export async function POST(req: Request) {
   try {
-    const { hostcode } = await request.json()
-
-    console.log("[v0] Received hostcode:", hostcode)
-
-    if (!hostcode || typeof hostcode !== "string") {
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Hostcode is required",
-        },
-        { status: 400 },
-      )
+    const body = await req.json().catch(() => ({}));
+    // tolerate hostcode or hostCode keys; trim & strip spaces
+    let hostcode: string = (body.hostcode ?? body.hostCode ?? '').toString().trim();
+    if (!hostcode) {
+      return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'HOSTCODE_REQUIRED' }, { status: 400 });
     }
 
-    const cleanHostcode = hostcode.trim()
-    const business = SessionManager.verifyHostcode(cleanHostcode)
-
-    if (!business) {
-      console.log("[v0] Invalid hostcode provided:", cleanHostcode)
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Invalid hostcode",
-        },
-        { status: 401 },
-      )
+    // allow leading zeros: compare as string only
+    const configs = await getHostcodes();
+    const found = configs.find(c => c.hostcode.trim() === hostcode);
+    if (!found) {
+      return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'INVALID_HOSTCODE' }, { status: 401 });
     }
 
-    const session = SessionManager.createSession(business.id)
-    console.log("[v0] Created session:", session.id, "for business:", business.name)
+    const sessions = await allSessions();
 
-    return NextResponse.json<ApiResponse>({
-      success: true,
-      data: {
-        sessionId: session.id,
-        business: {
-          id: business.id,
-          name: business.name,
-          slogan: business.slogan,
-        },
+    // reuse existing session for same hostcode if you want (or create new each time)
+    const existing = sessions.find(s => s.hostcode === hostcode);
+    const session: Session = existing ?? {
+      sessionId: uuid(),
+      hostcode,
+      business: {
+        businessName: found.businessName,
+        slogan: found.slogan || '',
+        flyerUrl: found.flyerUrl || '',
       },
-    })
-  } catch (error) {
-    console.error("[v0] Hostcode validation error:", error)
-    return NextResponse.json<ApiResponse>(
-      {
-        success: false,
-        error: "Internal server error",
-      },
-      { status: 500 },
-    )
+      devices: [],
+      queue: [],
+      lastPlayed: null,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    if (!existing) {
+      sessions.push(session);
+      await saveSessions(sessions);
+    }
+
+    return NextResponse.json<ApiEnvelope<Session>>({ ok: true, data: session });
+  } catch (e: any) {
+    return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: e?.message || 'UNKNOWN' }, { status: 500 });
   }
 }

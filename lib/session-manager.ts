@@ -1,4 +1,4 @@
-import type { Session, Device, Business } from "@/types"
+import type { SessionV0 as Session, Device, Business } from "@/types"
 import { mockBusiness, mockUserVideos } from "./mock-data"
 import store from "./store"
 
@@ -174,7 +174,7 @@ export class SessionManager {
     const session = sessions.get(sessionId)
     if (!session) return false
 
-    session.isActive = false
+  session.isActive = false
     sessions.delete(sessionId)
     sessionQueues.delete(sessionId)
     SessionManager.persistSessions()

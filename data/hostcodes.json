@@ -1,0 +1,14 @@
+[
+  {
+    "hostcode": "919190",
+    "businessName": "Scret Lounge",
+    "slogan": "Let’s Have Some Fun",
+    "flyerUrl": "/flyers/default.jpg"
+  },
+  {
+    "hostcode": "777777",
+    "businessName": "BoatHouse Cafe",
+    "slogan": "Da BoatHouse Cafe",
+    "flyerUrl": "/flyers/boathouse.jpg"
+  }
+]

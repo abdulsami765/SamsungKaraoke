@@ -1,59 +1,49 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { SessionManager } from "@/lib/session-manager"
-import type { ApiResponse } from "@/types"
+import { NextResponse } from 'next/server';
+import { allSessions, saveSessions, uuid } from '@/lib/store';
+import type { ApiEnvelope, DeviceInfo } from '@/types';
+import { safeName } from '@/lib/device';
 
-export async function POST(request: NextRequest) {
-  try {
-    const { sessionId, deviceName } = await request.json()
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
-    console.log("Request Body:", { sessionId, deviceName });
+const MAX_DEVICES = 3;
 
-    if (!sessionId || sessionId.trim() === "") {
-      console.error("Invalid session ID provided:", sessionId);
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Session ID is required",
-        },
-        { status: 400 },
-      );
-    }
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const { sessionId, deviceName, userAgent } = body as { sessionId?: string; deviceName?: string; userAgent?: string };
+  const sessions = await allSessions();
+  const s = sessions.find(x => x.sessionId === (sessionId || ''));
+  if (!s) return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'SESSION_NOT_FOUND' }, { status: 404 });
 
-    if (!deviceName || typeof deviceName !== "string" || deviceName.trim() === "") {
-      console.error("Invalid device name provided:", deviceName);
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Device name is required",
-        },
-        { status: 400 },
-      );
-    }
+  // prune devices older than 24h (optional hardening)
+  const now = Date.now();
+  const DAY = 24 * 60 * 60 * 1000;
+  s.devices = s.devices.filter(d => !d.lastActive || (now - d.lastActive) < DAY);
 
-    const device = SessionManager.registerDevice(sessionId, deviceName);
-    if (!device) {
-      console.error(`Failed to register device for sessionId: ${sessionId}`);
-      return NextResponse.json<ApiResponse>(
-        {
-          success: false,
-          error: "Failed to register device (max 3 devices allowed)",
-        },
-        { status: 400 },
-      );
-    }
-
-    console.log("Device registered successfully:", device);
-    return NextResponse.json<ApiResponse>({
-      success: true,
-      data: device,
-    }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json<ApiResponse>(
-      {
-        success: false,
-        error: "Internal server error",
-      },
-      { status: 500 },
-    )
+  // de-duplicate: same userAgent or same normalized device name => reuse existing device
+  const normName = safeName(deviceName);
+  const existing = s.devices.find(d => (userAgent && d.userAgent === userAgent) || d.name === normName);
+  if (existing) {
+    existing.lastActive = now;
+    s.updatedAt = now;
+    await saveSessions(sessions);
+    return NextResponse.json<ApiEnvelope<DeviceInfo>>({ ok: true, data: existing });
   }
+
+  if (s.devices.length >= MAX_DEVICES) {
+    return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'Device limit reached (max 3). Please remove a device or log out properly.' }, { status: 403 });
+  }
+
+  const device: DeviceInfo = {
+    id: uuid(),
+    name: normName,
+    userAgent,
+    createdAt: now,
+    lastActive: now,
+  };
+  s.devices.push(device);
+  s.updatedAt = now;
+  await saveSessions(sessions);
+
+  return NextResponse.json<ApiEnvelope<DeviceInfo>>({ ok: true, data: device });
 }

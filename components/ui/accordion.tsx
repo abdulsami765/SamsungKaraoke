@@ -1,13 +1,12 @@
 'use client'
-
-import dynamic from 'next/dynamic';
 import * as React from 'react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { ChevronDownIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-const Accordion = dynamic(() => import('./accordion'), { ssr: false });
+// Export primitives directly; avoid dynamic self-import which causes type errors
+const Accordion = AccordionPrimitive.Root;
 
 function AccordionComponent({
   ...props
