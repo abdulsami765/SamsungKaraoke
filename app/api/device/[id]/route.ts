@@ -5,12 +5,12 @@ import type { ApiEnvelope } from '@/types';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function DELETE(_req: Request, context: { params: { id: string } } | { params: Promise<{ id: string }> }) {
+export async function DELETE(_req: Request, context: any) {
   try {
-    // Support both direct params and Promise-wrapped params (Next.js type variance)
-    const resolved = 'params' in context && typeof (context as any).params?.then === 'function'
-      ? await (context as { params: Promise<{ id: string }> }).params
-      : (context as { params: { id: string } }).params;
+    // Resolve params whether provided directly or as a Promise (Next internals can vary)
+    const resolved = (context && typeof context.params?.then === 'function')
+      ? await context.params
+      : context?.params ?? {};
     // Expect sessionId via query string for simplicity in REST delete
     // e.g. /api/device/{id}?sessionId=...
     const url = new URL(_req.url);
@@ -22,7 +22,7 @@ export async function DELETE(_req: Request, context: { params: { id: string } } 
     if (!sessionId) {
       return NextResponse.json<ApiEnvelope<null>>({ ok: false, error: 'SESSION_ID_REQUIRED' }, { status: 400 });
     }
-    const deviceId = resolved.id;
+  const deviceId = resolved.id;
 
     const sessions = await allSessions();
     const s = sessions.find(x => x.sessionId === sessionId);
